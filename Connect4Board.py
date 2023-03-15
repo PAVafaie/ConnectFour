@@ -158,6 +158,9 @@ class Connect4Board:
     def get_colour_at_position(self, row, column):
         return self.board[row][column]
 
+    def get_moves_made(self):
+        return self.moves_made
+
     @staticmethod
     def generate_winning_lines() -> List[List[Tuple[int, int]]]:
         '''

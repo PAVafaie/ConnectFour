@@ -1,0 +1,11 @@
+# url of c4arena website
+:c4arena_url: 'https://c4arena.com'
+
+############### IDs ###############
+
+############### XPaths ###############
+:game_iframe: '//*[@id="game-iframe"]'
+:play_ai_button: '//*[@id="menu-button-play-against-ai"]'
+:difficulty_easy_button: '//*[@class="menu-button" and @id="ai-difficulty-easy"]'
+:difficulty_medium_button: '//*[@class="menu-button" and @id="ai-difficulty-medium"]'
+:difficulty_hard_button: '//*[@class="menu-button" and @id="ai-difficulty-hard"]'

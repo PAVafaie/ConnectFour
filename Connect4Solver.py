@@ -9,7 +9,7 @@ from Connect4Board import Connect4Board as Board
 class Connect4Solver:
 
     # How deep to DFS for minimax algorithm
-    DEPTH = 5
+    DEPTH = 6
 
     # Scoring for partial lines of chips of the same colour
     # i.e. if 3 red pieces are in a row, score it highly
@@ -25,31 +25,62 @@ class Connect4Solver:
 
     def play(self, game: Board):
         print(game)
-        placing_colour = Colour.RED
+        player_colour = Colour.RED
 
-        while game.still_playing():
-            valid_input = False
-            while not valid_input:
-                input_col = int(input("Input column to place " + placing_colour.value + ": "))
-                if input_col >= 0 and input_col < Board.COLUMNS and game.move_available(input_col):
-                    valid_input = True
-                else:
-                    print("Invalid move")
-            game.place_chip(placing_colour, input_col)
-            print(game)
+        player_first = True
+        answer = input("Should the solver make the first move? Y/N ")
+        if answer == "Y" or answer == "y":
+            player_first = False
+        answer = input("What colour should the solver be? R/Y ")
+        if answer == "R" or answer == "r":
+            player_colour = Colour.YELLOW
 
-            if not game.still_playing():
-                break
+        # setup = [[Colour.EMPTY, Colour.EMPTY, Colour.YELLOW, Colour.EMPTY, Colour.EMPTY, Colour.RED, Colour.EMPTY],
+        #          [Colour.EMPTY, Colour.EMPTY, Colour.RED, Colour.RED, Colour.EMPTY, Colour.YELLOW, Colour.EMPTY],
+        #          [Colour.EMPTY, Colour.YELLOW, Colour.RED, Colour.RED, Colour.EMPTY, Colour.YELLOW, Colour.EMPTY],
+        #          [Colour.RED, Colour.RED, Colour.RED, Colour.YELLOW, Colour.EMPTY, Colour.YELLOW, Colour.EMPTY],
+        #          [Colour.YELLOW, Colour.RED, Colour.YELLOW, Colour.YELLOW, Colour.YELLOW, Colour.RED, Colour.EMPTY],
+        #          [Colour.YELLOW, Colour.RED, Colour.YELLOW, Colour.YELLOW, Colour.YELLOW, Colour.RED, Colour.RED]]
+        #
+        # game = Board(26, (3, 0), setup, [3, 4, 6, 5, 1, 6, 1], [True, True, False, True, True, False, True])
+        # player_first = False
+        # player_colour = Colour.RED
+        #
+        # print (game)
 
-            # AI part
-            minimax_move = self.solveBoard(game, Colour.YELLOW)
-            game.place_chip(Colour.YELLOW, minimax_move)
-            print(game)
+        if player_first:
+            while game.still_playing():
+                self.make_player_move(game, player_colour)
+                if not game.still_playing():
+                    break
+                self.make_ai_move(game, self.__alternate_colour(player_colour))
+        else:
+            while game.still_playing():
+                self.make_ai_move(game, self.__alternate_colour(player_colour))
+                if not game.still_playing():
+                    break
+                self.make_player_move(game, player_colour)
 
         if game.get_winner() == Colour.EMPTY:
             print("Tie game!")
         else:
             print("The winner is " + game.get_winner().name)
+
+    def make_player_move(self, game: Board, placing_colour: Colour):
+        valid_input = False
+        while not valid_input:
+            input_col = int(input("Input column to place " + placing_colour.value + ": "))
+            if 0 <= input_col < Board.COLUMNS and game.move_available(input_col):
+                valid_input = True
+            else:
+                print("Invalid move")
+        game.place_chip(placing_colour, input_col)
+        print(game)
+
+    def make_ai_move(self, game: Board, placing_colour: Colour):
+        ai_move = self.solveBoard(game, placing_colour)
+        game.place_chip(placing_colour, ai_move)
+        print(game)
 
     def solveBoard(self, game: Board, player: Colour) -> int:
         """
@@ -68,7 +99,10 @@ class Connect4Solver:
         if lose_next_turn != -1:
             return lose_next_turn
 
-        minimax = self.solve_minimax(game, player, self.DEPTH)
+        if game.get_moves_made() < self.DEPTH:
+            minimax = self.solve_minimax(game, player, 2)
+        else:
+            minimax = self.solve_minimax(game, player, self.DEPTH)
         print ("Minimax values:")
         print(minimax)
         optimal_moves = []
